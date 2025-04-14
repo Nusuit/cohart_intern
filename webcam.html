@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam</title>
+    <style>
+        #vid {
+            width: 100%;
+            height: auto;
+            
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Webcam</h1>
+        <div>
+            <!-- add autoplay for auto video running -->
+            <video id="vid" autoplay></video>
+        </div>
+        <br>
+        <button id="open-webcam">
+            Open Webcam
+        </button>
+        <button id="pause-webcam">
+            Pause Webcam
+        </button>
+        <button id="resume-webcam">
+            Resume Webcam
+        </button>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let video = document.getElementById("vid");
+            let open_webcam = document.getElementById("open-webcam");
+            let pause_webcam = document.getElementById("pause-webcam");
+            let resume_webcam = document.getElementById("resume-webcam");
+            let mediaDevices = navigator.mediaDevices;
+            vid.muted = true;
+            open_webcam.addEventListener("click", () => {
+                mediaDevices
+                // getUserMedia allows to access to cam or mic
+                    .getUserMedia({
+                        video: true,
+                        audio: false,
+                    })
+                    .then((stream) => {
+                        video.srcObject = stream;
+                        // wait for load the metadata of the video
+                        video.addEventListener("loadedmetadata", () => {
+                            video.play();
+                        });
+                    })
+                    .catch(alert);
+            })
+            pause_webcam.addEventListener("click", () => {
+                video.pause();
+            })
+            resume_webcam.addEventListener("click", () => {
+                video.play();
+            })
+        })
+    </script>
+</body>
+</html>
