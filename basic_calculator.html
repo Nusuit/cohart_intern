@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #f0f0f0;
+            max-width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .calculator {
+            background-color: black;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 1);
+            justify-items: center;
+            width: fit-content;
+            padding: 20px;
+        }
+        #display {
+            background-color: rgba(20, 20, 20, 0.8);
+            color: white;
+            
+            border-radius: 15px;
+            margin-top: 120px;
+            width: 300px;
+            padding: 30px;
+            text-align: right;
+            font-size: 24px;
+            min-height: 30px;
+            box-shadow: inset -5px -5px 10px rgb(255, 255, 225, 0.25);
+        }
+        .buttons {
+            /* background-color: ; */
+            gap: 10px;
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(4, 80px);
+            transition: all 0.2s;
+        }
+
+        .buttons button {
+            font-size: 30px;
+            padding: 20px;
+            border-radius: 100%;
+            background-color: black;       
+            color: white;
+            cursor: pointer;
+            box-shadow: -5px -5px 10px rgb(255, 255, 225, 0.20) !important;
+        }
+
+        .buttons button:hover {
+            background-color: rgb(31, 30, 30);
+        }
+
+        .operator {
+            color: orange !important;
+            font-size: 40px !important;
+            padding: 0px;
+        }
+
+        .equals {
+            background-color: orange !important;
+            color: white;
+            grid-row: span 2;
+            height: auto;
+            border-radius: 40px !important;
+        }
+
+        .backspace {
+            color: orange !important;
+        }
+
+        .clear {
+            color: orange !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <!-- screen to display -->
+        <!-- <input type="text" id="display" readonly>0</input> -->
+        <div class="display" id="display">0</div><br> <!-- use class for css and id for js-->
+
+        <!-- buttons -->
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">AC</button>
+            <button class="operator" onclick="appendToDisplay('/')">/</button>
+            <button class="operator" onclick="appendToDisplay('x')">x</button>
+            <button class="backspace" onclick="backspace()">⌫</button>
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button class="operator" onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button class="operator" onclick="appendToDisplay('+')">+</button>
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button class="equals" onclick="confirmAction('expression', calculate)">=</button> 
+            <button class="operator" onclick="appendToDisplay('%')">%</button>
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+        </div>
+
+        <div class="history-title">History</div>
+        <div class="history" id="history"></div>
+    </div>
+
+    <script>
+        // store current expression
+        let currentExpression = '0';
+
+        const calculationHistory = [];
+                
+        // load history from localStorage
+        window.onload = function() {
+            if(localStorage.getItem('calculationHistory')) {
+                calculationHistory = JSON.parse(localStorage.getItem('calculationHistory'));
+                updateHistoryDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('display').textContent = currentExpression
+        }
+
+        function clearDisplay(){
+            currentExpression = '0';
+            updateDisplay();
+        }
+
+        function appendToDisplay(value){
+            // check if currentExpression is equal to 0 to insert value to 0 or add if not
+            if(currentExpression === '0' && value !=='.') {
+                currentExpression = value;
+            } else {
+                currentExpression += value;
+            }
+            updateDisplay();
+        }
+        
+        function backspace() {
+            // check if currentExpression is not '0' (the starting value)
+            if(currentExpression.length > 1) {
+                currentExpression = currentExpression.slice(0, -1)
+            }
+            else {
+                currentExpression = '0';
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                const originalExpression = currentExpression;
+
+                // use regex to convert x to * and : to /
+                currentExpression = currentExpression
+                                    .replace(/x/g, '*')
+                                    .replace(/:/g, '/');
+                const result = eval(currentExpression);
+                
+                
+                // add to history
+                const calculationEntry = `${originalExpression} = ${result}`;
+                calculationHistory.unshift(calculationEntry); //append to the beginning of the array
+                // limit to 10 entries
+                if(calculationHistory.length > 10) {
+                    calculationHistory.pop();
+                }
+                // store in LocalStorage
+                localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
+                // display result
+                currentExpression = result.toString();
+                updateDisplay();
+                updateHistoryDisplay();
+            } catch (err) {
+                currentExpression = 'Error';
+                console.error(err);
+                updateDisplay();
+            }
+        }
+
+        function updateHistoryDisplay() {
+            const historyElement = document.getElementById('history');
+            historyElement.innerHTML = '';
+
+            calculationHistory.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.textContent = entry;
+                historyElement.appendChild(entryElement);
+            });
+        }
+
+        function confirmAction (actionName, callback) {
+            // const userConfirmed = confirm(`Are you sure you want to calculate ${actionName}?`);
+            // if (userConfirmed) {
+            //     callback();
+            // } else {
+            //     alert('Action cancelled!');
+            // }
+            Swal.fire({
+                title: 'Confirm',
+                text: `Do you actually want to ${actionName}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Confirm',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    callback();
+                } else {
+                    Swal.fire({
+                        title: 'Canceled',
+                        text: `Action ${actionName} is canceled.`,
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

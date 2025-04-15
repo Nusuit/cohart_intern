@@ -38,7 +38,7 @@
             let resume_webcam = document.getElementById("resume-webcam");
             let mediaDevices = navigator.mediaDevices;
             vid.muted = true;
-            open_webcam.addEventListener("click", () => {
+            function OpenCamera() {
                 mediaDevices
                 // getUserMedia allows to access to cam or mic
                     .getUserMedia({
@@ -49,18 +49,72 @@
                         video.srcObject = stream;
                         // wait for load the metadata of the video
                         video.addEventListener("loadedmetadata", () => {
+                            // video.confirmAction('turn on the camera', play());
                             video.play();
                         });
                     })
                     .catch(alert);
-            })
-            pause_webcam.addEventListener("click", () => {
+                // pause_webcam.addEventListener("click", () => {
+                // // video.confirmAction('pause camera', pause());
+                // video.pause();
+                // })
+                // resume_webcam.addEventListener("click", () => {
+                //     // video.confirmAction('turn on the camera', play());
+                //     video.play();
+                // })
+            }
+            
+            function PauseVideo() {
                 video.pause();
-            })
-            resume_webcam.addEventListener("click", () => {
+            }
+
+            function ResumeVideo() {
                 video.play();
+            }
+
+            open_webcam.addEventListener("click", () => {
+                confirmAction('turn on the camera', OpenCamera)
+            })
+
+            pause_webcam.addEventListener("click", () => {
+                confirmAction('pause the camera', PauseVideo)
+            })
+
+            resume_webcam.addEventListener("click", () => {
+                confirmAction('continue the camera', ResumeVideo)
             })
         })
+        
+        function confirmAction (actionName, callback) {
+            // const userConfirmed = confirm(`Are you sure you want to turn ${actionName}?`);
+            // if (userConfirmed) {
+            //     callback();
+            // } else {
+            //     alert('Action cancelled!');
+            // }
+            Swal.fire({
+                title: 'Confirm',
+                text: `Do you actually want to ${actionName}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Confirm',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    callback();
+                } else {
+                    Swal.fire({
+                        title: 'Canceled',
+                        text: `Action ${actionName} is canceled.`,
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

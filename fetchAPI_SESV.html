@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch data SESV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button {
+            padding: 20px;
+            background-color: rgba(11, 145, 255, 0.486);
+            color: #000;
+            border-radius: 40px;
+        }
+        .button:hover {
+            background-color: rgba(11, 145, 255, 0.8);
+            cursor: pointer;
+        }
+        .display {
+            margin-top: 20px;
+            padding: 20px;
+            /* background-color: rgba(11, 145, 255, 0.2); */
+            color: #000;
+            border-radius: 10px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 18px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="button" onclick="confirmAction('Fetch data from SESV', fetchData)">Manual Fetch</button>
+        <div class="display" id="display" ></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="SESV_lastest_tutorial.js"></script>
+</body>
+</html>
