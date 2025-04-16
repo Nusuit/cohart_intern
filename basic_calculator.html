@@ -82,6 +82,30 @@
         .clear {
             color: orange !important;
         }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .back-button a {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: rgba(52, 152, 219, 0.8);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .back-button a:hover {
+            background-color: rgba(52, 152, 219, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -115,8 +139,10 @@
 
         <div class="history-title">History</div>
         <div class="history" id="history"></div>
+        <div class="back-button">
+            <a href="../index.html">← Back to Home</a>
+        </div>
     </div>
-
     <script>
         // store current expression
         let currentExpression = '0';

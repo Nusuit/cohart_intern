@@ -1,9 +1,8 @@
 async function fetchData() {
     try {
         // const corsProxy = 'https://corsproxy.io/';
-
-        // fetch(corsProxy + 'https://www.sesvtutorial.com/page-data/index/page-data.json')
-        
+        // const response = fetch(corsProxy + 'https://www.sesvtutorial.com/page-data/index/page-data.json')
+        // only use this if you have allow Cors extension 
         const response = await fetch('https://www.sesvtutorial.com/page-data/index/page-data.json/');
 
         console.log('Response status:', response.status);
