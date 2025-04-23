@@ -106,6 +106,35 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
+        /* history */
+        .history-container {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 10px;
+            background-color: rgba(20, 20, 20, 0.8);
+            padding: 10px;
+            width: 300px;
+        }
+        
+        .history-title {
+            color: orange;
+            font-size: 18px;
+            padding: 5px 0;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .history {
+            color: white;
+        }
+        
+        .history div {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #333;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -147,7 +176,7 @@
         // store current expression
         let currentExpression = '0';
 
-        const calculationHistory = [];
+        let calculationHistory = [];
                 
         // load history from localStorage
         window.onload = function() {
@@ -168,11 +197,18 @@
 
         function appendToDisplay(value){
             // check if currentExpression is equal to 0 to insert value to 0 or add if not
-            if(currentExpression === '0' && value !=='.') {
-                currentExpression = value;
-            } else {
-                currentExpression += value;
-            }
+                if(currentExpression === '0' && value !=='.') {
+                    currentExpression = value;
+                } else {
+                    const lastChar = currentExpression.slice(-1);
+                    const operator = ['+', '-', 'x', '/', '%', '.'];
+                    if (operator.includes(value) && operator.includes(lastChar)){
+                        currentExpression = currentExpression.slice(0, -1);
+                    }
+                    else {
+                        currentExpression += value;
+                    } 
+                }
             updateDisplay();
         }
         
