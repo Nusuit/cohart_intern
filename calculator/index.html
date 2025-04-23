@@ -25,24 +25,86 @@
             width: fit-content;
             padding: 20px;
         }
-        #display {
+
+        /* History section styling */
+        .history-container{
+            background-color: rgba(20, 20, 20, 0.8);
+            color: orange;
+            border-radius: 10px;
+            width: 300px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .history-title {
+            font-size: 18px;
+            text-align: center;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 5px;
+        }
+
+        #history {
+            color: #cccccc71;
+        }
+
+        #history div {
+            text-align: right;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: background-color 0.2s
+        }
+
+        #history div:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Display area styling */
+        .display {
             background-color: rgba(20, 20, 20, 0.8);
             color: white;
-            
             border-radius: 15px;
-            margin-top: 120px;
             width: 300px;
-            padding: 30px;
-            text-align: right;
-            font-size: 24px;
-            min-height: 30px;
-            box-shadow: inset -5px -5px 10px rgb(255, 255, 225, 0.25);
+            height: 120px;
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            
+            /* Flex properties to align content at bottom right */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            
+            font-size: 36px;
+            overflow: hidden;
         }
+        
+        /* Multi-line display elements */
+        .previous-expression {
+            font-size: 20px;
+            color: #aaa;
+            width: 100%;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 30px;
+        }
+        
+        .current-expression {
+            width: 100%;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Calculator buttons styling */
         .buttons {
-            /* background-color: ; */
             gap: 10px;
             display: grid;
-            gap: 10px;
             grid-template-columns: repeat(4, 80px);
             transition: all 0.2s;
         }
@@ -106,44 +168,23 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
-        /* history */
-        .history-container {
-            margin-top: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-            border-radius: 10px;
-            background-color: rgba(20, 20, 20, 0.8);
-            padding: 10px;
-            width: 300px;
-        }
-        
-        .history-title {
-            color: orange;
-            font-size: 18px;
-            padding: 5px 0;
-            text-align: center;
-            margin-top: 15px;
-        }
-        
-        .history {
-            color: white;
-        }
-        
-        .history div {
-            margin: 5px 0;
-            padding: 5px;
-            border-bottom: 1px solid #333;
-            text-align: right;
-        }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <!-- screen to display -->
-        <!-- <input type="text" id="display" readonly>0</input> -->
-        <div class="display" id="display">0</div><br> <!-- use class for css and id for js-->
+        <!-- History section -->
+        <div class="history-container">
+            <div class="history-title">History</div>
+            <div class="history" id="history"></div>
+        </div>
+        
+        <!-- Display section - supports two-line display when needed -->
+        <div class="display">
+            <div class="previous-expression" id="previous-expression"></div>
+            <div class="current-expression" id="current-expression">0</div>
+        </div>
 
-        <!-- buttons -->
+        <!-- Calculator buttons -->
         <div class="buttons">
             <button class="clear" onclick="clearDisplay()">AC</button>
             <button class="operator" onclick="appendToDisplay('/')">/</button>
@@ -160,25 +201,28 @@
             <button onclick="appendToDisplay('1')">1</button>
             <button onclick="appendToDisplay('2')">2</button>
             <button onclick="appendToDisplay('3')">3</button>
-            <button class="equals" onclick="confirmAction('expression', calculate)">=</button> 
+            <button class="equals" onclick="calculate()">=</button> 
             <button class="operator" onclick="appendToDisplay('%')">%</button>
             <button onclick="appendToDisplay('0')">0</button>
             <button onclick="appendToDisplay('.')">.</button>
         </div>
 
-        <div class="history-title">History</div>
-        <div class="history" id="history"></div>
         <div class="back-button">
             <a href="../index.html">← Back to Home</a>
         </div>
     </div>
     <script>
-        // store current expression
+        // Variables to store the expression state
         let currentExpression = '0';
+        let previousExpression = '';
+        
+        // Maximum number of characters allowed in an expression
+        const MAX_CHARS = 19;
 
+        // Array to store calculation history
         let calculationHistory = [];
                 
-        // load history from localStorage
+        // Load calculation history from localStorage when page loads
         window.onload = function() {
             if(localStorage.getItem('calculationHistory')) {
                 calculationHistory = JSON.parse(localStorage.getItem('calculationHistory'));
@@ -186,115 +230,217 @@
             }
         }
 
+        /*
+            - Updates the calculator display
+            - Shows both previous and current expressions
+        */
         function updateDisplay() {
-            document.getElementById('display').textContent = currentExpression
+            document.getElementById('current-expression').textContent = currentExpression;
+            document.getElementById('previous-expression').textContent = previousExpression;
+            adjustFontSize();
         }
 
+        /*
+            - Clears the calculator display and resets all expressions
+        */
         function clearDisplay(){
             currentExpression = '0';
+            previousExpression = '';
             updateDisplay();
         }
 
+        /*
+            - Appends a value to the current expression
+            - Only moves to next line if operator is clicked and max length is reached
+         */
         function appendToDisplay(value){
-            // check if currentExpression is equal to 0 to insert value to 0 or add if not
-                if(currentExpression === '0' && value !=='.') {
-                    currentExpression = value;
+            const lastChar = currentExpression.slice(-1);
+            const operators = ['+', '-', 'x', '/', '%', '.'];
+            
+            // Check if the value is an operator
+            if (operators.includes(value) && value !== '.') {
+                // If current expression is at max length, move to next line
+                if (currentExpression.length >= MAX_CHARS) {
+                    previousExpression = currentExpression + value;
+                    currentExpression = '0';
+                    updateDisplay();
+                    return;
                 } else {
-                    const lastChar = currentExpression.slice(-1);
-                    const operator = ['+', '-', 'x', '/', '%', '.'];
-                    if (operator.includes(value) && operator.includes(lastChar)){
-                        currentExpression = currentExpression.slice(0, -1);
-                    }
-                    else {
+                    // Handle operators normally if not at max length
+                    if (operators.includes(lastChar)) {
+                        // Replace the last operator with the new one
+                        currentExpression = currentExpression.slice(0, -1) + value;
+                    } else {
+                        // Add the operator
                         currentExpression += value;
-                    } 
+                    }
+                    updateDisplay();
+                    return;
                 }
+            }
+            
+            // Handle input when starting with 0
+            if(currentExpression === '0') {
+                if (value === '.') {
+                    // For decimal point, keep the leading zero
+                    currentExpression = '0.';
+                } else {
+                    // Replace the zero with the new digit
+                    currentExpression = value;
+                }
+            } else {
+                // Enforce character limit
+                if (currentExpression.length < MAX_CHARS) {
+                    // Prevent multiple decimal points
+                    if (value === '.' && currentExpression.includes('.')) {
+                        return;
+                    }
+                    
+                    // Replace operator with another operator if needed
+                    if (operators.includes(value) && operators.includes(lastChar)) {
+                        currentExpression = currentExpression.slice(0, -1) + value;
+                    } else {
+                        currentExpression += value;
+                    }
+                }
+                // If at max length, don't add more characters (except operators handled above)
+            }
             updateDisplay();
         }
         
+        /*
+            - Removes the last character from the current expression
+        */
         function backspace() {
-            // check if currentExpression is not '0' (the starting value)
+            // If expression has more than one character, remove the last one
             if(currentExpression.length > 1) {
-                currentExpression = currentExpression.slice(0, -1)
-            }
-            else {
+                currentExpression = currentExpression.slice(0, -1);
+            } else {
+                // If only one character, reset to zero
                 currentExpression = '0';
             }
             updateDisplay();
         }
 
+        /*
+            - Calculates the result of the expression
+            - Handles errors and updates history
+        */
         function calculate() {
             try {
-                const originalExpression = currentExpression;
+                // Create the full expression by combining previous and current parts
+                const fullExpression = previousExpression 
+                    ? previousExpression + currentExpression 
+                    : currentExpression;
+                
+                // Store the original expression for history
+                const originalExpression = fullExpression;
+                
+                // Skip calculation if nothing to calculate
+                if (fullExpression === '0') {
+                    return;
+                }
 
-                // use regex to convert x to * and : to /
-                currentExpression = currentExpression
+                // Convert operators for JS evaluation
+                const expressionToEval = fullExpression
                                     .replace(/x/g, '*')
                                     .replace(/:/g, '/');
-                const result = eval(currentExpression);
+                                    
+                const result = eval(expressionToEval);
                 
+                // Check for invalid results
+                if (isNaN(result) || !isFinite(result)) {
+                    throw new Error("Invalid calculation");
+                }
                 
-                // add to history
+                // Add calculation to history
                 const calculationEntry = `${originalExpression} = ${result}`;
-                calculationHistory.unshift(calculationEntry); //append to the beginning of the array
-                // limit to 10 entries
+                calculationHistory.unshift(calculationEntry); // Add to beginning of array
+                
+                // Limit history size
                 if(calculationHistory.length > 10) {
                     calculationHistory.pop();
                 }
-                // store in LocalStorage
+                
+                // Save history to localStorage
                 localStorage.setItem('calculationHistory', JSON.stringify(calculationHistory));
-                // display result
+                
+                // Update display with result
+                previousExpression = '';
                 currentExpression = result.toString();
+                
                 updateDisplay();
                 updateHistoryDisplay();
             } catch (err) {
+                // Handle calculation errors
+                previousExpression = '';
                 currentExpression = 'Error';
                 console.error(err);
                 updateDisplay();
             }
         }
 
+        /*
+            - Updates the history display with recent calculations
+            - Makes history items clickable to restore expressions
+        */
         function updateHistoryDisplay() {
             const historyElement = document.getElementById('history');
-            historyElement.innerHTML = '';
+            historyElement.innerHTML = ''; // Clear current history display
 
-            calculationHistory.forEach(entry => {
+            // Get only the 3 most recent history entries
+            const recentHistory = calculationHistory.slice(0, 3);
+
+            // Add each history entry to the display
+            recentHistory.forEach(entry => {
                 const entryElement = document.createElement('div');
                 entryElement.textContent = entry;
+                
+                // Make history entries clickable to restore the expression
+                entryElement.addEventListener('click', function() {
+                    const parts = entry.split('=');
+                    if (parts.length > 0){
+                        // Extract the expression part (before =)
+                        const expression = parts[0].trim();
+                        currentExpression = expression;
+                        previousExpression = '';
+                        updateDisplay();
+                    }
+                });
                 historyElement.appendChild(entryElement);
             });
         }
 
-        function confirmAction (actionName, callback) {
-            // const userConfirmed = confirm(`Are you sure you want to calculate ${actionName}?`);
-            // if (userConfirmed) {
-            //     callback();
-            // } else {
-            //     alert('Action cancelled!');
-            // }
-            Swal.fire({
-                title: 'Confirm',
-                text: `Do you actually want to ${actionName}?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Confirm',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    callback();
-                } else {
-                    Swal.fire({
-                        title: 'Canceled',
-                        text: `Action ${actionName} is canceled.`,
-                        icon: 'info',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            });
+        /*
+            - Adjusts the font size based on the length of the expression
+            - Prevents overflow for long expressions
+        */
+        function adjustFontSize() {
+            const currentElement = document.getElementById('current-expression');
+            const length = currentExpression.length;
+
+            // Gradual font size reduction as expression gets longer
+            if (length < 13) {
+                currentElement.style.fontSize = '36px';
+            } else if (length < 17) {
+                currentElement.style.fontSize = '34px';
+            } else if (length < 18) {
+                currentElement.style.fontSize = '33px';
+            } else if (length < 19) {
+                currentElement.style.fontSize = '32px';
+            } else if (length < 20) {
+                currentElement.style.fontSize = '31px';
+            } else if (length < 21) {
+                currentElement.style.fontSize = '30px';
+            } else if (length < 22) {
+                currentElement.style.fontSize = '29px';
+            } else if (length < 23) {
+                currentElement.style.fontSize = '28px';
+            } else {
+                currentElement.style.fontSize = '27px';
+            }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
 </body>
 </html>
