@@ -62,17 +62,17 @@ class LoginForm extends React.Component {
               </div>
             </div>
 
-            <div class="flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <label
                 htmlFor="password"
                 className="block text-sm/6 font-medium text-gray-900"
               >
                 Password:
               </label>
-              <div class="text-sm">
+              <div className="text-sm">
                 <a
                   href="#"
-                  class="font-semibold text-indigo-600 hover:text-indigo-500 hover:underline"
+                  className="font-semibold text-indigo-600 hover:text-indigo-500 hover:underline"
                 >
                   Forgot password?
                 </a>
