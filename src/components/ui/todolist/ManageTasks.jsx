@@ -1,5 +1,5 @@
 import React from "react";
-import TaskList from "../../components/ui/TaskList";
+import TaskList from "./TaskList";
 
 class ManageTasks extends React.Component {
   state = {
@@ -18,10 +18,11 @@ class ManageTasks extends React.Component {
 
   render() {
     return (
-      <div>
-        <button onClick={this.togglePanel}>
+      <div className="mb-5 relative">
+        <button onClick={this.togglePanel} className="absolute right-0 mb-5">
           {this.state.isPanelVisible ? "Hide Tasks" : "Show All Tasks"}
         </button>
+        <h3 className="font-medium text-2xl text-center w-full">Today</h3>
         {this.state.isPanelVisible && (
           <TaskList
             tasks={this.props.tasks}

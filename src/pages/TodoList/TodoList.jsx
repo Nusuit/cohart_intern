@@ -1,6 +1,6 @@
 import React from "react";
-import ManageTasks from "../../components/ui/ManageTasks";
-import AddTask from "../../components/ui/AddTask";
+import ManageTasks from "../../components/ui/todolist/ManageTasks";
+import AddTask from "../../components/ui/todolist/AddTask";
 
 class TodoList extends React.Component {
   state = {
