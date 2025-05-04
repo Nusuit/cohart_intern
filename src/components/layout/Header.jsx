@@ -18,10 +18,10 @@ class Header extends React.Component {
             </Link>
 
             <Link
-              to="/introduction"
+              to="/friend"
               className="hover:text-blue-700 transition-colors"
             >
-              Your Information
+              Friend
             </Link>
 
             <Link

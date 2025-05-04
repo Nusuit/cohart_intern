@@ -4,6 +4,7 @@ import LoginForm from "./pages/account/LoginForm";
 import TodoList from "./pages/todolist/TodoList";
 import Introduction from "./pages/introduction/Introduction";
 import Header from "./components/layout/Header";
+import Friend from "./pages/introduction/Friend";
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
         <Route path="/" element={<LoginForm />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/todolist" element={<TodoList />} />
-        <Route path="/introduction" element={<Introduction />} />
+        {/* <Route path="/introduction" element={<Introduction />} /> */}
+        <Route path="/friend" element={<Friend />} />
       </Routes>
     </Router>
   );
