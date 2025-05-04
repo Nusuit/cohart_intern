@@ -1,9 +1,9 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginForm from "./pages/account/LoginForm";
-import TodoList from "./pages/todolist/TodoList";
+import LoginForm from "./pages/account_page/LoginForm";
+import TodoList from "./pages/todolist_page/TodoList";
 import Header from "./components/layout/Header";
-import Friend from "./pages/introduction/Friend";
+import Friend from "./pages/introduction_page/Friend";
 
 function App() {
   return (
