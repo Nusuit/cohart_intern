@@ -1,8 +1,7 @@
 import "./App.css";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/account/LoginForm";
 import TodoList from "./pages/todolist/TodoList";
-import Introduction from "./pages/introduction/Introduction";
 import Header from "./components/layout/Header";
 import Friend from "./pages/introduction/Friend";
 
