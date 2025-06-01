@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Queue selling ticket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .log-item {
+        padding: 8px;
+        margin-bottom: 4px;
+        border-radius: 4px;
+      }
+      .log-success {
+        background-color: #d1fae5;
+        color: #065f46;/
+      }
+      .log-error {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+      .log-info {
+        background-color: #e0e7ff;
+        color: #3730a3;
+      }
+      .log-warning {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4"
+  >
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
+      <h1 class="text-3xl font-bold text-center text-orange-600 mb-8">
+        Queue selling ticket
+      </h1>
+
+      <div class="mb-6">
+        <label
+          for="numTickets"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >Available ticket:</label
+        >
+        <input
+          type="number"
+          id="numTickets"
+          value="5"
+          class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        />
+      </div>
+
+      <div class="mb-6">
+        <label
+          for="numRequests"
+          class="block text-sm font-medium text-gray-700 mb-1"
+          >Same time users buy tickets:</label
+        >
+        <input
+          type="number"
+          id="numRequests"
+          value="20"
+          class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        />
+      </div>
+
+      <button
+        id="simulateButton"
+        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:shadow-outline transition duration-150 ease-in-out mb-6"
+      >
+        Start selling
+      </button>
+
+      <div class="mb-4">
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">Queue status:</h2>
+        <div
+          id="queueStatus"
+          class="p-3 bg-gray-50 rounded-md text-sm text-gray-600 min-h-[50px]"
+        >
+          No request
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">Result:</h2>
+        <div
+          id="logs"
+          class="bg-gray-50 p-4 rounded-md shadow-inner max-h-80 overflow-y-auto"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      let ticketQueue = [];
+      let availableTickets = 0;
+      let processingInterval = null;
+      let requestCounter = 0;
+
+      const numTicketsInput = document.getElementById("numTickets");
+      const numRequestsInput = document.getElementById("numRequests");
+      const simulateButton = document.getElementById("simulateButton");
+      const logsContainer = document.getElementById("logs");
+      const queueStatusDiv = document.getElementById("queueStatus");
+
+      function logMessage(message, type = "info") {
+        const logEntry = document.createElement("div");
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logEntry.classList.add("log-item");
+        switch (type) {
+          case "success":
+            logEntry.classList.add("log-success");
+            break;
+          case "error":
+            logEntry.classList.add("log-error");
+            break;
+          case "warning":
+            logEntry.classList.add("log-warning");
+            break;
+          default:
+            logEntry.classList.add("log-info");
+        }
+        logsContainer.appendChild(logEntry);
+        logsContainer.scrollTop = logsContainer.scrollHeight;
+      }
+
+      function updateQueueStatus() {
+        if (ticketQueue.length === 0) {
+          queueStatusDiv.textContent = "Queue null";
+        } else {
+          queueStatusDiv.textContent = `Handle: ${ticketQueue.length} requests. next request: ID ${ticketQueue[0].id}`;
+        }
+      }
+
+      function processQueue() {
+        if (ticketQueue.length === 0) {
+          logMessage("Queue null", "info");
+          clearInterval(processingInterval);
+          processingInterval = null;
+          simulateButton.disabled = false;
+          simulateButton.textContent = "Start selling";
+          updateQueueStatus();
+          return;
+        }
+
+        const request = ticketQueue.shift();
+        updateQueueStatus();
+        logMessage(`Handle request ${request.id}...`, "info");
+
+        setTimeout(() => {
+          if (availableTickets > 0) {
+            availableTickets--;
+            logMessage(
+              `Request for ${request.id} success! User is received ticket. Available: ${availableTickets} tickets.`,
+              "success"
+            );
+          } else {
+            logMessage(
+              `Request for ${request.id} failed! No ticket left.`,
+              "error"
+            );
+          }
+
+          updateQueueStatus();
+        }, Math.random() * 1000 + 500);
+      }
+
+      simulateButton.addEventListener("click", () => {
+        logsContainer.innerHTML = "";
+        ticketQueue = [];
+        requestCounter = 0;
+        availableTickets = parseInt(numTicketsInput.value);
+        if (isNaN(availableTickets) || availableTickets <= 0) {
+          logMessage("Enter > 0", "error");
+          return;
+        }
+
+        const numberOfRequests = parseInt(numRequestsInput.value);
+        if (isNaN(numberOfRequests) || numberOfRequests <= 0) {
+          logMessage("Enter > 0", "error");
+          return;
+        }
+
+        logMessage(`--- Start selling ---`, "warning");
+        logMessage(`Available: ${availableTickets}`, "info");
+        logMessage(`${numberOfRequests} users buy ticket...`, "info");
+
+        simulateButton.disabled = true;
+        simulateButton.textContent = "selling...";
+
+        for (let i = 0; i < numberOfRequests; i++) {
+          requestCounter++;
+          ticketQueue.push({ id: requestCounter, timestamp: Date.now() });
+        }
+        logMessage(
+          `${numberOfRequests} request have been pushed in queue.`,
+          "info"
+        );
+        updateQueueStatus();
+
+        if (!processingInterval) {
+          processingInterval = setInterval(processQueue, 1000);
+        }
+      });
+
+      updateQueueStatus();
+    </script>
+  </body>
+</html>
